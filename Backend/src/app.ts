@@ -1,8 +1,11 @@
 import express, { Request, Response, NextFunction } from "express";
+import mongoose from "mongoose";
 
 import HttpError from "./models/httpError";
 
 import LogService from "./services/log";
+
+import DatabaseConfig from "./config/database";
 
 class App {
   public app: express.Application;
@@ -18,10 +21,27 @@ class App {
 
   public start = async () => {
     try {
+      await this.connectToDb();
       this.listen();
     } catch (err) {
       LogService.error(["Fail", err]);
     }
+  };
+
+  private connectToDb = () => {
+    if (!DatabaseConfig.url) {
+      throw "Connection to database is missing!";
+    }
+
+    const conn = mongoose.connection;
+    conn.on("error", (err) => {
+      LogService.error(["Mongoose error", err]);
+    });
+    conn.once("open", () => {
+      LogService.write(["Connected to mongodb"], "green");
+    });
+
+    return mongoose.connect(DatabaseConfig.url);
   };
 
   private listen() {

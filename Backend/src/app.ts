@@ -1,8 +1,11 @@
 import express, { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 
+import AuthenticationRoutes from "./routes/authentication";
+
 import HttpError from "./models/httpError";
 
+import AuthenticationService from "./services/authentication";
 import LogService from "./services/log";
 
 import DatabaseConfig from "./config/database";
@@ -10,11 +13,13 @@ import DatabaseConfig from "./config/database";
 class App {
   public app: express.Application;
   public port: number;
+  private authenticationService: AuthenticationService;
 
-  constructor(port: number) {
+  constructor(port: number, authenticationService: AuthenticationService) {
     this.app = express();
 
     this.port = port;
+    this.authenticationService = authenticationService;
 
     this.configureServerAndRoutes();
   }
@@ -53,6 +58,27 @@ class App {
   private configureServerAndRoutes = () => {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
+
+    this.app.use((req: Request, res: Response, next: NextFunction) => {
+      const authHeader = req.headers["authorization"];
+      const token = authHeader && authHeader.split(" ")[1];
+
+      if (token) {
+        try {
+          req.user = this.authenticationService.getLoggedUserByToken(token);
+        } catch (err) {
+          const error = new HttpError("Session expired.", 401);
+          throw error;
+        }
+      }
+
+      next();
+    });
+
+    this.app.use(
+      "/api/auth",
+      new AuthenticationRoutes(this.authenticationService).getRouter()
+    );
 
     this.app.use((req: Request, res: Response, next: NextFunction) => {
       const error = new HttpError("Could not find this route.", 404);

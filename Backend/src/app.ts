@@ -2,11 +2,13 @@ import express, { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 
 import AuthenticationRoutes from "./routes/authentication";
+import UserRoutes from "./routes/user";
 
 import HttpError from "./models/httpError";
 
 import AuthenticationService from "./services/authentication";
 import LogService from "./services/log";
+import UserService from "./services/user";
 
 import DatabaseConfig from "./config/database";
 
@@ -14,12 +16,18 @@ class App {
   public app: express.Application;
   public port: number;
   private authenticationService: AuthenticationService;
+  private userService: UserService;
 
-  constructor(port: number, authenticationService: AuthenticationService) {
+  constructor(
+    port: number,
+    authenticationService: AuthenticationService,
+    userService: UserService
+  ) {
     this.app = express();
 
     this.port = port;
     this.authenticationService = authenticationService;
+    this.userService = userService;
 
     this.configureServerAndRoutes();
   }
@@ -79,6 +87,7 @@ class App {
       "/api/auth",
       new AuthenticationRoutes(this.authenticationService).getRouter()
     );
+    this.app.use("/api/users", new UserRoutes(this.userService).getRouter());
 
     this.app.use((req: Request, res: Response, next: NextFunction) => {
       const error = new HttpError("Could not find this route.", 404);

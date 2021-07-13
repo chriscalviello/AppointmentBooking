@@ -1,16 +1,16 @@
 import { Roles } from "../../authorization";
 
-import { Schema, model } from "mongoose";
+import { Schema, model, Document } from "mongoose";
 const uniqueValidator = require("mongoose-unique-validator");
 
-interface User {
+export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
   role: Roles;
 }
 
-const userSchema = new Schema<User>({
+const userSchema = new Schema<IUser>({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true, minlength: 6 },
@@ -27,4 +27,4 @@ const userSchema = new Schema<User>({
 
 userSchema.plugin(uniqueValidator);
 
-export default model<User>("User", userSchema);
+export default model<IUser>("User", userSchema);

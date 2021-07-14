@@ -2,11 +2,13 @@ import express, { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 
 import AuthenticationRoutes from "./routes/authentication";
+import BookingRoutes from "./routes/booking";
 import UserRoutes from "./routes/user";
 
 import HttpError from "./models/httpError";
 
 import AuthenticationService from "./services/authentication";
+import BookingService from "./services/booking";
 import LogService from "./services/log";
 import UserService from "./services/user";
 
@@ -16,17 +18,20 @@ class App {
   public app: express.Application;
   public port: number;
   private authenticationService: AuthenticationService;
+  private bookingService: BookingService;
   private userService: UserService;
 
   constructor(
     port: number,
     authenticationService: AuthenticationService,
+    bookingService: BookingService,
     userService: UserService
   ) {
     this.app = express();
 
     this.port = port;
     this.authenticationService = authenticationService;
+    this.bookingService = bookingService;
     this.userService = userService;
 
     this.configureServerAndRoutes();
@@ -86,6 +91,10 @@ class App {
     this.app.use(
       "/api/auth",
       new AuthenticationRoutes(this.authenticationService).getRouter()
+    );
+    this.app.use(
+      "/api/booking",
+      new BookingRoutes(this.bookingService).getRouter()
     );
     this.app.use("/api/users", new UserRoutes(this.userService).getRouter());
 

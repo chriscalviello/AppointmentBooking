@@ -7,7 +7,8 @@ const app = new App(
   5000,
   new ConcreteAuthenticationService(
     JwtConfig.accessTokenSecret,
-    JwtConfig.refreshTokenSecret
+    JwtConfig.refreshTokenSecret,
+    20
   ),
   new ConcreteUserService()
 );

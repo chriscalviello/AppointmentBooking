@@ -9,11 +9,17 @@ export class ConcreteAuthenticationService implements AuthenticationService {
   private accessTokenSecret: string;
   private refreshTokenSecret: string;
   private refreshTokens: Record<string, string>;
+  private tokenDurationInMinutes: number;
 
-  constructor(accessTokenSecret: string, refreshTokenSecret: string) {
+  constructor(
+    accessTokenSecret: string,
+    refreshTokenSecret: string,
+    tokenDurationInMinutes: number
+  ) {
     this.accessTokenSecret = accessTokenSecret;
     this.refreshTokenSecret = refreshTokenSecret;
     this.refreshTokens = {};
+    this.tokenDurationInMinutes = tokenDurationInMinutes;
   }
 
   getLoggedUserByToken = (token: string) => {
@@ -88,7 +94,7 @@ export class ConcreteAuthenticationService implements AuthenticationService {
       userId,
       role,
       this.accessTokenSecret,
-      "20m"
+      this.tokenDurationInMinutes + "m"
     );
     const refreshToken = this.getJwtToken(
       userId,

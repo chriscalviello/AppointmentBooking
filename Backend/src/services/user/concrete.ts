@@ -51,7 +51,7 @@ export class ConcreteUserService implements UserService {
     let user;
 
     try {
-      user = await User.findById(id);
+      user = await User.findById(id, "-password");
     } catch (err) {
       throw "Something went wrong, could not find user.";
     }

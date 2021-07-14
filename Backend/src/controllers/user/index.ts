@@ -22,20 +22,31 @@ class UserController {
     }
   };
 
-  get = async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.query.id as string;
+  getById = async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.body.id;
 
     try {
-      if (userId) {
-        const user = this.userService.getById(userId);
-        if (!user) {
-          return next(new HttpError("User does not exist", 500));
-        }
-        res.json({ users: [user] });
-      } else {
-        const users = this.userService.getAll();
-        res.json({ users });
+      if (req.user && req.user.role === "USER" && req.user.id !== userId) {
+        return next(
+          new HttpError("You are not allowed to get other users", 403)
+        );
       }
+
+      const user = await this.userService.getById(userId);
+      if (!user) {
+        return next(new HttpError("User does not exist", 500));
+      }
+
+      res.json({ user });
+    } catch (err) {
+      return next(new HttpError(err, 500));
+    }
+  };
+
+  getAll = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const users = await this.userService.getAll();
+      res.json({ users });
     } catch (err) {
       return next(new HttpError(err, 500));
     }

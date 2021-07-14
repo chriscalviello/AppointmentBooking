@@ -21,7 +21,18 @@ class UserRoutes {
       Validation.validate,
       controller.delete
     );
-    this.router.get("/get", AllowRouteTo([Roles.admin]), controller.get);
+    this.router.post(
+      "/getById",
+      [check("id").not().isEmpty()],
+      Validation.validate,
+      AllowRouteTo([Roles.admin, Roles.user]),
+      controller.getById
+    );
+    this.router.post(
+      "/getAll",
+      AllowRouteTo([Roles.admin, Roles.user]),
+      controller.getAll
+    );
     this.router.post(
       "/save",
       [

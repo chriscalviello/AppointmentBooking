@@ -26,7 +26,11 @@ class UserController {
     const userId = req.body.id;
 
     try {
-      if (req.user && req.user.role === "USER" && req.user.id !== userId) {
+      if (
+        req.user &&
+        req.user.role.includes("USER") &&
+        req.user.id !== userId
+      ) {
         return next(
           new HttpError("You are not allowed to get other users", 403)
         );
@@ -65,7 +69,7 @@ class UserController {
     }
 
     try {
-      if (!req.user || (req.user.role === "USER" && req.user.id !== id)) {
+      if (req.user && req.user.role.includes("USER") && req.user.id !== id) {
         return next(
           new HttpError("You are not allowed to edit other users", 403)
         );

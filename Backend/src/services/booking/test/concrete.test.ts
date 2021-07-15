@@ -3,6 +3,7 @@ import Appointment, { IAppointment } from "../../../models/appointment";
 import User, { IUser } from "../../../models/user";
 import { Roles } from "../../../authorization";
 import { ConcreteUserService } from "../../user/concrete";
+jest.mock("../../user/concrete");
 
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
@@ -11,6 +12,7 @@ describe("ConcreteBookingService", () => {
   let mongoServer: MongoMemoryServer;
   let con: typeof mongoose;
   let customer: IUser;
+
   const sut = new ConcreteBookingService(new ConcreteUserService());
 
   beforeAll(async () => {
@@ -38,6 +40,14 @@ describe("ConcreteBookingService", () => {
       new Date(2020, 10, 1, 10, 30),
       customer
     );
+
+    ConcreteUserService.prototype.getById = jest
+      .fn()
+      .mockImplementation((id: string) => {
+        return new Promise<IUser | undefined>((resolve) => {
+          resolve(id === "fakeId" ? undefined : customer);
+        });
+      });
   });
 
   afterAll(async () => {
@@ -134,12 +144,59 @@ describe("ConcreteBookingService", () => {
     });
   });
 
-  it("should return false when one date is between other appointment's range", async () => {
-    const x = await sut.checkAvailability(
-      new Date(2020, 10, 1, 8, 30),
-      new Date(2020, 10, 1, 9, 15)
-    );
-    expect(x).toBeFalsy();
+  describe("when create", () => {
+    const mockedSaveFn = jest
+      .spyOn(sut, "saveAppointmentAndAddToCustomer")
+      .mockImplementation(() => {
+        return new Promise<IAppointment>((resolve) => {
+          resolve(new Appointment());
+        });
+      });
+
+    const mockedCheckFn = jest.spyOn(sut, "checkAvailability");
+
+    it("should reject when customer doesn't exist", async () => {
+      await expect(
+        sut.create(
+          "fakeId",
+          new Date(2020, 10, 1, 1),
+          new Date(2020, 10, 1, 2),
+          "test"
+        )
+      ).rejects.toBeDefined();
+    });
+
+    it("should return a new appointment", async () => {
+      const appointment = await sut.create(
+        customer.id,
+        new Date(2020, 10, 1, 1),
+        new Date(2020, 10, 1, 2),
+        "test"
+      );
+      expect(appointment).toBeDefined();
+    });
+
+    it("should call 'saveAppointmentAndAddToCustomer'", async () => {
+      await sut.create(
+        customer.id,
+        new Date(2020, 10, 1, 1),
+        new Date(2020, 10, 1, 2),
+        "test"
+      );
+
+      expect(mockedSaveFn).toHaveBeenCalled();
+    });
+
+    it("should call 'checkAvailability'", async () => {
+      await sut.create(
+        customer.id,
+        new Date(2020, 10, 1, 1),
+        new Date(2020, 10, 1, 2),
+        "test"
+      );
+
+      expect(mockedCheckFn).toHaveBeenCalled();
+    });
   });
 });
 

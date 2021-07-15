@@ -3,7 +3,7 @@ import UserService from "../user";
 import Appointment, { IAppointment } from "../../models/appointment";
 import { IUser } from "../../models/user";
 
-import { startSession, Types } from "mongoose";
+import { startSession } from "mongoose";
 
 export class ConcreteBookingService implements BookingService {
   private userService: UserService;
@@ -18,22 +18,12 @@ export class ConcreteBookingService implements BookingService {
   ) => {
     let isFree = false;
     try {
-      const appointments = await Appointment.where("id")
-        .ne(appointmentIdToIgnore)
-        .or([
-          {
-            dateStart: {
-              $gte: dateStart,
-              $lte: dateEnd,
-            },
-          },
-          {
-            dateEnd: {
-              $gte: dateStart,
-              $lte: dateEnd,
-            },
-          },
-        ]);
+      const appointments = await Appointment.find().and([
+        { _id: { $ne: appointmentIdToIgnore } },
+        {
+          $or: this._getRangeCondition(dateStart, dateEnd),
+        },
+      ]);
       isFree = appointments.length === 0;
     } catch (err) {
       throw "Something went wrong, could not check availability.";
@@ -107,7 +97,6 @@ export class ConcreteBookingService implements BookingService {
 
       await sess.commitTransaction();
     } catch (err) {
-      console.log(err);
       throw "Something went wrong, could not remove the appointment.";
     }
   };
@@ -133,34 +122,10 @@ export class ConcreteBookingService implements BookingService {
       appointments = customerId
         ? await Appointment.find()
             .and([{ customer: customerId }])
-            .or([
-              {
-                dateStart: {
-                  $gte: dateStart,
-                  $lte: dateEnd,
-                },
-              },
-              {
-                dateEnd: {
-                  $gte: dateStart,
-                  $lte: dateEnd,
-                },
-              },
-            ])
-        : await Appointment.find().or([
-            {
-              dateStart: {
-                $gte: dateStart,
-                $lte: dateEnd,
-              },
-            },
-            {
-              dateEnd: {
-                $gte: dateStart,
-                $lte: dateEnd,
-              },
-            },
-          ]);
+            .or(this._getRangeCondition(dateStart, dateEnd))
+        : await Appointment.find().or(
+            this._getRangeCondition(dateStart, dateEnd)
+          );
     } catch (err) {
       throw "Something went wrong, could not retrieve appointments.";
     }
@@ -198,4 +163,19 @@ export class ConcreteBookingService implements BookingService {
 
     return appointment;
   };
+
+  private _getRangeCondition = (dateStart: Date, dateEnd: Date) => [
+    {
+      dateStart: {
+        $gt: dateStart,
+        $lt: dateEnd,
+      },
+    },
+    {
+      dateEnd: {
+        $gt: dateStart,
+        $lt: dateEnd,
+      },
+    },
+  ];
 }

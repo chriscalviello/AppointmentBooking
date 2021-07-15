@@ -11,157 +11,197 @@ export class ConcreteBookingService implements BookingService {
     this.userService = userService;
   }
 
-  checkAvailability = async (
+  checkAvailability = (
     dateStart: Date,
     dateEnd: Date,
     appointmentIdToIgnore?: string
   ) => {
-    let isFree = false;
-    try {
-      const appointments = await Appointment.find().and([
-        { _id: { $ne: appointmentIdToIgnore } },
-        {
-          $or: this._getRangeCondition(dateStart, dateEnd),
-        },
-      ]);
-      isFree = appointments.length === 0;
-    } catch (err) {
-      throw "Something went wrong, could not check availability.";
-    }
-    return isFree;
+    return new Promise<boolean>(async (resolve, reject) => {
+      let isFree = false;
+      try {
+        const appointments = await Appointment.find().and([
+          { _id: { $ne: appointmentIdToIgnore } },
+          {
+            $or: this._getRangeCondition(dateStart, dateEnd),
+          },
+        ]);
+        isFree = appointments.length === 0;
+      } catch (err) {
+        reject("Something went wrong, could not check availability.");
+        return;
+      }
+      resolve(isFree);
+    });
   };
 
-  create = async (
+  create = (
     customerId: string,
     dateStart: Date,
     dateEnd: Date,
     note: string
   ) => {
-    try {
-      if (!this.checkAvailability(dateStart, dateEnd)) {
-        throw "Selected slot is not free, try with other dates.";
+    return new Promise<IAppointment>(async (resolve, reject) => {
+      try {
+        if (!this.checkAvailability(dateStart, dateEnd)) {
+          reject("Selected slot is not free, try with other dates.");
+          return;
+        }
+      } catch (err) {
+        reject(err);
+        return;
       }
-    } catch (err) {
-      throw err;
-    }
 
-    const appointment = new Appointment();
-    appointment.dateStart = dateStart;
-    appointment.dateEnd = dateEnd;
-    appointment.note = note;
-    appointment.customer = customerId;
+      let appointment = new Appointment();
+      appointment.dateStart = dateStart;
+      appointment.dateEnd = dateEnd;
+      appointment.note = note;
+      appointment.customer = customerId;
 
-    let customer;
-    try {
-      customer = await this.userService.getById(customerId);
-    } catch (err) {
-      throw err;
-    }
+      let customer;
+      try {
+        customer = await this.userService.getById(customerId);
+      } catch (err) {
+        reject(err);
+        return;
+      }
 
-    if (!customer) {
-      throw "Could not find customer.";
-    }
+      if (!customer) {
+        reject("Could not find customer.");
+        return;
+      }
 
-    try {
+      try {
+        appointment = await this.saveAppointmentAndAddToCustomer(
+          appointment,
+          customer
+        );
+      } catch (err) {
+        reject("Something went wrong, could not save the appointment.");
+        return;
+      }
+
+      resolve(appointment);
+    });
+  };
+  saveAppointmentAndAddToCustomer = (
+    appointment: IAppointment,
+    customer: IUser
+  ) => {
+    return new Promise<IAppointment>(async (resolve, reject) => {
       const sess = await startSession();
       sess.startTransaction();
       await appointment.save({ session: sess });
       (customer.appointments as IAppointment[]).push(appointment);
       await customer.save({ session: sess });
       await sess.commitTransaction();
-    } catch (err) {
-      throw "Something went wrong, could not save the appointment.";
-    }
-
-    return appointment;
+      resolve(appointment);
+    });
   };
-  delete = async (id: string) => {
-    let appointment;
-    try {
-      appointment = await this.getById(id);
-    } catch (err) {
-      throw err;
-    }
-
-    try {
-      const sess = await startSession();
-      sess.startTransaction();
-
-      const customer = appointment.customer as IUser;
-      const userAppointments = customer.appointments as string[];
-      const index = userAppointments.indexOf(appointment.id);
-      userAppointments.splice(index, 1);
-
-      await customer.save({ session: sess });
-      await appointment.remove({ session: sess });
-
-      await sess.commitTransaction();
-    } catch (err) {
-      throw "Something went wrong, could not remove the appointment.";
-    }
-  };
-  getById = async (id: string) => {
-    let appointment;
-
-    try {
-      appointment = await Appointment.findById(id).populate("customer");
-    } catch (err) {
-      throw "Something went wrong, could not find the appointment.";
-    }
-
-    if (!appointment) {
-      throw "Could not find any appointment for the provided id.";
-    }
-
-    return appointment;
-  };
-  getByRange = async (dateStart: Date, dateEnd: Date, customerId?: string) => {
-    let appointments: IAppointment[];
-
-    try {
-      appointments = customerId
-        ? await Appointment.find()
-            .and([{ customer: customerId }])
-            .or(this._getRangeCondition(dateStart, dateEnd))
-        : await Appointment.find().or(
-            this._getRangeCondition(dateStart, dateEnd)
-          );
-    } catch (err) {
-      throw "Something went wrong, could not retrieve appointments.";
-    }
-
-    return appointments;
-  };
-  update = async (dateStart: Date, dateEnd: Date, note: string, id: string) => {
-    let appointment;
-    try {
-      appointment = await this.getById(id);
-    } catch (err) {
-      throw err;
-    }
-
-    if (
-      appointment.dateStart !== dateStart ||
-      appointment.dateEnd !== dateEnd
-    ) {
+  delete = (id: string) => {
+    return new Promise<void>(async (resolve, reject) => {
+      let appointment;
       try {
-        if (!this.checkAvailability(dateStart, dateEnd, appointment.id)) {
-          throw "Selected slot is not free, try with other dates.";
-        }
+        appointment = await this.getById(id);
       } catch (err) {
-        throw err;
+        reject(err);
+        return;
       }
-    }
-    appointment.dateStart = dateStart;
-    appointment.dateEnd = dateEnd;
-    appointment.note = note;
-    try {
-      await appointment.save();
-    } catch (err) {
-      throw "Something went wrong, could not save the appointment.";
-    }
 
-    return appointment;
+      try {
+        const sess = await startSession();
+        sess.startTransaction();
+
+        const customer = appointment.customer as IUser;
+        const userAppointments = customer.appointments as string[];
+        const index = userAppointments.indexOf(appointment.id);
+        userAppointments.splice(index, 1);
+
+        await customer.save({ session: sess });
+        await appointment.remove({ session: sess });
+
+        await sess.commitTransaction();
+      } catch (err) {
+        reject("Something went wrong, could not remove the appointment.");
+        return;
+      }
+      resolve();
+    });
+  };
+  getById = (id: string) => {
+    return new Promise<IAppointment>(async (resolve, reject) => {
+      let appointment;
+
+      try {
+        appointment = await Appointment.findById(id).populate("customer");
+      } catch (err) {
+        reject("Something went wrong, could not find the appointment.");
+        return;
+      }
+
+      if (!appointment) {
+        reject("Could not find any appointment for the provided id.");
+        return;
+      }
+
+      resolve(appointment);
+    });
+  };
+  getByRange = (dateStart: Date, dateEnd: Date, customerId?: string) => {
+    return new Promise<IAppointment[]>(async (resolve, reject) => {
+      let appointments: IAppointment[];
+
+      try {
+        appointments = customerId
+          ? await Appointment.find()
+              .and([{ customer: customerId }])
+              .or(this._getRangeCondition(dateStart, dateEnd))
+          : await Appointment.find().or(
+              this._getRangeCondition(dateStart, dateEnd)
+            );
+      } catch (err) {
+        reject("Something went wrong, could not retrieve appointments.");
+        return;
+      }
+
+      resolve(appointments);
+    });
+  };
+  update = (dateStart: Date, dateEnd: Date, note: string, id: string) => {
+    return new Promise<IAppointment>(async (resolve, reject) => {
+      let appointment;
+      try {
+        appointment = await this.getById(id);
+      } catch (err) {
+        reject(err);
+        return;
+      }
+
+      if (
+        appointment.dateStart !== dateStart ||
+        appointment.dateEnd !== dateEnd
+      ) {
+        try {
+          if (!this.checkAvailability(dateStart, dateEnd, appointment.id)) {
+            reject("Selected slot is not free, try with other dates.");
+            return;
+          }
+        } catch (err) {
+          reject(err);
+          return;
+        }
+      }
+      appointment.dateStart = dateStart;
+      appointment.dateEnd = dateEnd;
+      appointment.note = note;
+      try {
+        await appointment.save();
+      } catch (err) {
+        reject("Something went wrong, could not save the appointment.");
+        return;
+      }
+
+      resolve(appointment);
+    });
   };
 
   private _getRangeCondition = (dateStart: Date, dateEnd: Date) => [

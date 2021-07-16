@@ -1,3 +1,4 @@
+import cors from "cors";
 import express, { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 
@@ -87,6 +88,8 @@ class App {
 
       next();
     });
+
+    this.app.use(cors());
 
     this.app.use(
       "/api/auth",

@@ -55,7 +55,7 @@ export class ConcreteUserService implements UserService {
       let users: IUser[];
 
       try {
-        users = await User.find({}, "-password").populate("appointments");
+        users = await User.find({}, "-password");
       } catch (err) {
         reject("Something went wrong, could not retrieve users.");
         return;
@@ -85,7 +85,7 @@ export class ConcreteUserService implements UserService {
       let user;
 
       try {
-        user = await User.findById(id, "-password").populate("appointments");
+        user = await User.findById(id, "-password");
       } catch (err) {
         reject("Something went wrong, could not find user.");
         return;

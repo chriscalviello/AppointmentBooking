@@ -22,7 +22,7 @@ export class ConcreteBookingService implements BookingService {
         const appointments = await Appointment.find().and([
           { _id: { $ne: appointmentIdToIgnore } },
           {
-            $or: this._getRangeCondition(dateStart, dateEnd),
+            $or: this._getRangeCondition(dateStart, dateEnd, false),
           },
         ]);
         isFree = appointments.length === 0;
@@ -154,9 +154,9 @@ export class ConcreteBookingService implements BookingService {
         appointments = customerId
           ? await Appointment.find()
               .and([{ customer: customerId }])
-              .or(this._getRangeCondition(dateStart, dateEnd))
+              .or(this._getRangeCondition(dateStart, dateEnd, true))
           : await Appointment.find().or(
-              this._getRangeCondition(dateStart, dateEnd)
+              this._getRangeCondition(dateStart, dateEnd, true)
             );
       } catch (err) {
         reject("Something went wrong, could not retrieve appointments.");
@@ -177,8 +177,8 @@ export class ConcreteBookingService implements BookingService {
       }
 
       if (
-        appointment.dateStart !== dateStart ||
-        appointment.dateEnd !== dateEnd
+        appointment.dateStart.getTime() !== dateStart.getTime() ||
+        appointment.dateEnd.getTime() !== dateEnd.getTime()
       ) {
         try {
           if (!this.checkAvailability(dateStart, dateEnd, appointment.id)) {
@@ -204,18 +204,38 @@ export class ConcreteBookingService implements BookingService {
     });
   };
 
-  private _getRangeCondition = (dateStart: Date, dateEnd: Date) => [
-    {
-      dateStart: {
-        $gt: dateStart,
-        $lt: dateEnd,
-      },
-    },
-    {
-      dateEnd: {
-        $gt: dateStart,
-        $lt: dateEnd,
-      },
-    },
-  ];
+  private _getRangeCondition = (
+    dateStart: Date,
+    dateEnd: Date,
+    isIncluded: boolean
+  ) =>
+    isIncluded
+      ? [
+          {
+            dateStart: {
+              $gte: dateStart,
+              $lte: dateEnd,
+            },
+          },
+          {
+            dateEnd: {
+              $gte: dateStart,
+              $lte: dateEnd,
+            },
+          },
+        ]
+      : [
+          {
+            dateStart: {
+              $gt: dateStart,
+              $lt: dateEnd,
+            },
+          },
+          {
+            dateEnd: {
+              $gt: dateStart,
+              $lt: dateEnd,
+            },
+          },
+        ];
 }

@@ -23,7 +23,7 @@ class UserController {
   };
 
   getById = async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.body.id;
+    const userId = req.query.id as string;
 
     try {
       if (
@@ -54,6 +54,10 @@ class UserController {
     } catch (err) {
       return next(new HttpError(err, 500));
     }
+  };
+
+  getRoles = (req: Request, res: Response, next: NextFunction) => {
+    res.json({ roles: Roles });
   };
 
   save = async (req: Request, res: Response, next: NextFunction) => {

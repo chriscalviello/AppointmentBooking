@@ -21,17 +21,22 @@ class UserRoutes {
       Validation.validate,
       controller.delete
     );
-    this.router.post(
+    this.router.get(
       "/getById",
       [check("id").not().isEmpty()],
       Validation.validate,
       AllowRouteTo([Roles.admin, Roles.user]),
       controller.getById
     );
-    this.router.post(
+    this.router.get(
       "/getAll",
       AllowRouteTo([Roles.admin, Roles.user]),
       controller.getAll
+    );
+    this.router.get(
+      "/getRoles",
+      AllowRouteTo([Roles.admin]),
+      controller.getRoles
     );
     this.router.post(
       "/save",

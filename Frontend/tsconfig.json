@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    // Target latest version of ECMAScript.
+    "target": "esnext",
+    // Search under node_modules for non-relative imports.
+    "moduleResolution": "node",
+    // Set module format
+    "module": "commonjs",
+    // Process & infer types from .js files.
+    "allowJs": true,
+    // Don't emit; allow Babel to transform files.
+    "noEmit": true,
+    "noErrorTruncation": true,
+    // Safe default for switch cases
+    "noFallthroughCasesInSwitch": true,
+    // Enable strictest settings like strictNullChecks & noImplicitAny.
+    "strict": true,
+    "strictNullChecks": true,
+    // Import non-ES modules as default imports.
+    "esModuleInterop": true,
+    // Enable React
+    "jsx": "preserve",
+    // Set the base path
+    "baseUrl": ".",
+    "resolveJsonModule": true
+  },
+  "include": ["src"]
+}

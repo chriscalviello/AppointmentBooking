@@ -50,6 +50,10 @@ describe("ConcreteBookingService", () => {
       });
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   afterAll(async () => {
     await mongoServer.stop(true);
     await con.disconnect();
@@ -196,6 +200,77 @@ describe("ConcreteBookingService", () => {
       );
 
       expect(mockedCheckFn).toHaveBeenCalled();
+    });
+  });
+
+  describe("when getByRange", () => {
+    it("should return an empty array", async () => {
+      const appointments = await sut.getByRange(
+        new Date(2020, 10, 1, 7),
+        new Date(2020, 10, 1, 7, 59)
+      );
+      expect(appointments).toHaveLength(0);
+    });
+
+    it("should return data", async () => {
+      const appointments = await sut.getByRange(
+        new Date(2020, 10, 1, 8),
+        new Date(2020, 10, 1, 9, 10)
+      );
+      expect(appointments).toHaveLength(2);
+    });
+  });
+
+  describe("when getById", () => {
+    it("should return data", async () => {
+      const appointment = await sut.getById(
+        (customer.appointments[0] as IAppointment).id
+      );
+      expect(appointment).toBeDefined();
+    });
+
+    it("should reject", async () => {
+      await expect(sut.getById("fakeId")).rejects.toBeDefined();
+    });
+  });
+
+  describe("when update", () => {
+    const mockedCheckFn = jest.spyOn(sut, "checkAvailability");
+    it("should call 'checkAvailability'", async () => {
+      await sut.update(
+        new Date(2020, 10, 1, 9, 30),
+        new Date(2020, 10, 1, 10, 40),
+        "updated note",
+        (customer.appointments[2] as IAppointment).id
+      );
+
+      expect(mockedCheckFn).toHaveBeenCalled();
+    });
+    it("should not call 'checkAvailability'", async () => {
+      await sut.update(
+        new Date(2020, 10, 1, 8),
+        new Date(2020, 10, 1, 8, 30),
+        "updated note",
+        (customer.appointments[0] as IAppointment).id
+      );
+
+      expect(mockedCheckFn).toHaveBeenCalledTimes(0);
+    });
+    it("should update properties", async () => {
+      const newAppointment = await sut.update(
+        new Date(2020, 10, 1, 9, 5),
+        new Date(2020, 10, 1, 9, 35),
+        "updated note",
+        (customer.appointments[1] as IAppointment).id
+      );
+
+      expect(newAppointment.dateStart.getTime()).toEqual(
+        new Date(2020, 10, 1, 9, 5).getTime()
+      );
+      expect(newAppointment.dateEnd.getTime()).toEqual(
+        new Date(2020, 10, 1, 9, 35).getTime()
+      );
+      expect(newAppointment.note).toEqual("updated note");
     });
   });
 });

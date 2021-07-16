@@ -35,7 +35,7 @@ class UserRoutes {
     );
     this.router.get(
       "/getRoles",
-      AllowRouteTo([Roles.admin]),
+      AllowRouteTo([Roles.admin, Roles.user]),
       controller.getRoles
     );
     this.router.post(
@@ -46,7 +46,7 @@ class UserRoutes {
         check("id").not().isEmpty(),
         check("role").not().isEmpty(),
       ],
-      AllowRouteTo([Roles.admin]),
+      AllowRouteTo([Roles.admin, Roles.user]),
       Validation.validate,
       controller.save
     );

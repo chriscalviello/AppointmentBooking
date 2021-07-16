@@ -1,4 +1,5 @@
 import AuthenticationService from ".";
+import UserService from "../user";
 import User from "../../models/user";
 import { LoggedUser } from "../../models/loggedUser";
 import { Roles } from "../../authorization";
@@ -6,6 +7,8 @@ import { Roles } from "../../authorization";
 import jwt from "jsonwebtoken";
 
 export class ConcreteAuthenticationService implements AuthenticationService {
+  private userService: UserService;
+
   private accessTokenSecret: string;
   private refreshTokenSecret: string;
   private refreshTokens: Record<string, string>;
@@ -14,8 +17,11 @@ export class ConcreteAuthenticationService implements AuthenticationService {
   constructor(
     accessTokenSecret: string,
     refreshTokenSecret: string,
-    tokenDurationInMinutes: number
+    tokenDurationInMinutes: number,
+    userService: UserService
   ) {
+    this.userService = userService;
+
     this.accessTokenSecret = accessTokenSecret;
     this.refreshTokenSecret = refreshTokenSecret;
     this.refreshTokens = {};
@@ -28,16 +34,15 @@ export class ConcreteAuthenticationService implements AuthenticationService {
 
   login = (email: string, password: string) => {
     return new Promise<LoggedUser>(async (resolve, reject) => {
-      //TODO: move this logic in a separate service
       let existingUser;
       try {
-        existingUser = await User.findOne({ email: email, password: password });
+        existingUser = await this.userService.getByEmail(email);
       } catch (err) {
-        reject("Logging in failed, please try again later.");
+        reject(err);
         return;
       }
 
-      if (!existingUser) {
+      if (!existingUser || existingUser.password !== password) {
         reject("Logging in failed.");
         return;
       }
@@ -66,12 +71,11 @@ export class ConcreteAuthenticationService implements AuthenticationService {
   };
   signup = (email: string, password: string, name: string) => {
     return new Promise<LoggedUser>(async (resolve, reject) => {
-      //TODO: move this logic in a separate service
       let existingUser;
       try {
-        existingUser = await User.findOne({ email: email });
+        existingUser = await this.userService.getByEmail(email);
       } catch (err) {
-        reject("Cannot find user, please try again later.");
+        reject(err);
         return;
       }
 

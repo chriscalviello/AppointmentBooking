@@ -10,6 +10,7 @@ interface IUserService {
     role: Roles
   ) => Promise<IUser>;
   getAll: () => Promise<IUser[]>;
+  getByEmail: (email: string) => Promise<IUser | undefined>;
   getById: (userId: string) => Promise<IUser | undefined>;
 }
 

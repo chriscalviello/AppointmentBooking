@@ -11,7 +11,8 @@ const app = new App(
   new ConcreteAuthenticationService(
     JwtConfig.accessTokenSecret,
     JwtConfig.refreshTokenSecret,
-    60 * 10
+    60 * 10,
+    userService
   ),
   new ConcreteBookingService(userService),
   userService

@@ -31,6 +31,11 @@ export class ConcreteUserService implements UserService {
         return;
       }
 
+      if (!user) {
+        reject("Could not find user");
+        return;
+      }
+
       user.email = email;
       user.name = name;
       user.role = role;
@@ -59,8 +64,24 @@ export class ConcreteUserService implements UserService {
       resolve(users);
     });
   };
+  getByEmail = (email: string) => {
+    return new Promise<IUser | undefined>(async (resolve, reject) => {
+      let user;
+
+      try {
+        user = await User.find({
+          email: email,
+        });
+      } catch (err) {
+        reject("Something went wrong, could not find user.");
+        return;
+      }
+
+      resolve(!user || !user.length ? undefined : user[0]);
+    });
+  };
   getById = (id: string) => {
-    return new Promise<IUser>(async (resolve, reject) => {
+    return new Promise<IUser | undefined>(async (resolve, reject) => {
       let user;
 
       try {
@@ -70,12 +91,7 @@ export class ConcreteUserService implements UserService {
         return;
       }
 
-      if (!user) {
-        reject("Could not find user for the provided id.");
-        return;
-      }
-
-      resolve(user);
+      resolve(user ? user : undefined);
     });
   };
 }

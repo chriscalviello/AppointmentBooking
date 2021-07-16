@@ -26,23 +26,26 @@ export class ConcreteAuthenticationService implements AuthenticationService {
     return jwt.verify(token, this.accessTokenSecret) as LoggedUser;
   };
 
-  login = async (email: string, password: string) => {
-    //TODO: move this logic in a separate service
-    let existingUser;
-    try {
-      existingUser = await User.findOne({ email: email, password: password });
-    } catch (err) {
-      throw "Logging in failed, please try again later.";
-    }
+  login = (email: string, password: string) => {
+    return new Promise<LoggedUser>(async (resolve, reject) => {
+      //TODO: move this logic in a separate service
+      let existingUser;
+      try {
+        existingUser = await User.findOne({ email: email, password: password });
+      } catch (err) {
+        reject("Logging in failed, please try again later.");
+        return;
+      }
 
-    if (!existingUser) {
-      throw "Logging in failed.";
-    }
+      if (!existingUser) {
+        reject("Logging in failed.");
+        return;
+      }
 
-    return this.createTokensAndGetLoggedUser(
-      existingUser.id,
-      existingUser.role
-    );
+      resolve(
+        this.createTokensAndGetLoggedUser(existingUser.id, existingUser.role)
+      );
+    });
   };
   logout = (token: string) => {
     delete this.refreshTokens[token];
@@ -61,32 +64,39 @@ export class ConcreteAuthenticationService implements AuthenticationService {
 
     return user;
   };
-  signup = async (email: string, password: string, name: string) => {
-    //TODO: move this logic in a separate service
-    let existingUser;
-    try {
-      existingUser = await User.findOne({ email: email });
-    } catch (err) {
-      throw "Cannot find user, please try again later.";
-    }
+  signup = (email: string, password: string, name: string) => {
+    return new Promise<LoggedUser>(async (resolve, reject) => {
+      //TODO: move this logic in a separate service
+      let existingUser;
+      try {
+        existingUser = await User.findOne({ email: email });
+      } catch (err) {
+        reject("Cannot find user, please try again later.");
+        return;
+      }
 
-    if (existingUser) {
-      throw "User already exists.";
-    }
+      if (existingUser) {
+        reject("User already exists.");
+        return;
+      }
 
-    const createdUser = new User();
-    createdUser.name = name;
-    createdUser.email = email;
-    createdUser.password = password;
-    createdUser.role = Roles.user;
+      const createdUser = new User();
+      createdUser.name = name;
+      createdUser.email = email;
+      createdUser.password = password;
+      createdUser.role = Roles.user;
 
-    try {
-      await createdUser.save();
-    } catch (err) {
-      throw "Signing up failed. " + err;
-    }
+      try {
+        await createdUser.save();
+      } catch (err) {
+        reject("Signing up failed. " + err);
+        return;
+      }
 
-    return this.createTokensAndGetLoggedUser(createdUser.id, createdUser.role);
+      resolve(
+        this.createTokensAndGetLoggedUser(createdUser.id, createdUser.role)
+      );
+    });
   };
 
   private createTokensAndGetLoggedUser = (userId: string, role: Roles) => {

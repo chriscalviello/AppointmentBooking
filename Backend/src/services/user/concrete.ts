@@ -5,61 +5,77 @@ import { Roles } from "../../authorization";
 export class ConcreteUserService implements UserService {
   constructor() {}
 
-  delete = async (id: string) => {
-    try {
-      const x = await User.deleteOne({ _id: id });
-      if (!x.deletedCount) {
-        throw "No users found.";
+  delete = (id: string) => {
+    return new Promise<void>(async (resolve, reject) => {
+      try {
+        const x = await User.deleteOne({ _id: id });
+        if (!x.deletedCount) {
+          reject("No users found.");
+          return;
+        }
+      } catch (err) {
+        reject("Something went wrong, could not delete user.");
+        return;
       }
-    } catch (err) {
-      throw "Something went wrong, could not delete user.";
-    }
+      resolve();
+    });
   };
-  edit = async (email: string, name: string, id: string, role: Roles) => {
-    let user;
+  edit = (email: string, name: string, id: string, role: Roles) => {
+    return new Promise<IUser>(async (resolve, reject) => {
+      let user;
 
-    try {
-      user = await this.getById(id);
-    } catch (err) {
-      throw err;
-    }
+      try {
+        user = await this.getById(id);
+      } catch (err) {
+        reject(err);
+        return;
+      }
 
-    user.email = email;
-    user.name = name;
-    user.role = role;
+      user.email = email;
+      user.name = name;
+      user.role = role;
 
-    try {
-      await user.save();
-    } catch (err) {
-      throw "Something went wrong, could not save user.";
-    }
+      try {
+        await user.save();
+      } catch (err) {
+        reject("Something went wrong, could not save user.");
+        return;
+      }
 
-    return user;
+      resolve(user);
+    });
   };
-  getAll = async () => {
-    let users: IUser[];
+  getAll = () => {
+    return new Promise<IUser[]>(async (resolve, reject) => {
+      let users: IUser[];
 
-    try {
-      users = await User.find({}, "-password").populate("appointments");
-    } catch (err) {
-      throw "Something went wrong, could not retrieve users.";
-    }
+      try {
+        users = await User.find({}, "-password").populate("appointments");
+      } catch (err) {
+        reject("Something went wrong, could not retrieve users.");
+        return;
+      }
 
-    return users;
+      resolve(users);
+    });
   };
-  getById = async (id: string) => {
-    let user;
+  getById = (id: string) => {
+    return new Promise<IUser>(async (resolve, reject) => {
+      let user;
 
-    try {
-      user = await User.findById(id, "-password").populate("appointments");
-    } catch (err) {
-      throw "Something went wrong, could not find user.";
-    }
+      try {
+        user = await User.findById(id, "-password").populate("appointments");
+      } catch (err) {
+        reject("Something went wrong, could not find user.");
+        return;
+      }
 
-    if (!user) {
-      throw "Could not find user for the provided id.";
-    }
+      if (!user) {
+        reject("Could not find user for the provided id.");
+        return;
+      }
 
-    return user;
+      resolve(user);
+    });
   };
 }

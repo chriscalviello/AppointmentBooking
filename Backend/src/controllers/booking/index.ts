@@ -44,8 +44,8 @@ class BookingController {
   };
 
   getByRange = async (req: Request, res: Response, next: NextFunction) => {
-    const dateStart = new Date(req.body.dateStart);
-    const dateEnd = new Date(req.body.dateEnd);
+    const dateStart = new Date(req.query.dateStart as string);
+    const dateEnd = new Date(req.query.dateEnd as string);
 
     try {
       const customerId =

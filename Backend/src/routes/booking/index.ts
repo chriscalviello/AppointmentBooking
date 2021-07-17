@@ -28,7 +28,7 @@ class BookingRoutes {
       Validation.validate,
       controller.delete
     );
-    this.router.post(
+    this.router.get(
       "/getByRange",
       [check("dateStart").not().isEmpty(), check("dateEnd").not().isEmpty()],
       AllowRouteTo([Roles.admin, Roles.user]),

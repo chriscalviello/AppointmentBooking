@@ -4,6 +4,7 @@ import {
   AuthenticationProvider,
   useAuthentication,
 } from "./providers/authentication";
+import BookingsContainer from "./pages/bookings/container";
 import UsersContainer from "./pages/users/container";
 import EditUserContainer from "./pages/users/edit/container";
 import LoginContainer from "./pages/authentication/login/container";
@@ -14,8 +15,10 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import PersonAddIcon from "@material-ui/icons/PersonAdd";
 import LockOpenIcon from "@material-ui/icons/LockOpen";
 import PeopleIcon from "@material-ui/icons/People";
+import CalendarIcon from "@material-ui/icons/CalendarToday";
 import Menu, { ItemProps as MenuItemProps } from "./pages/menu";
 import Topbar from "./components/topbar";
+import { BookingDataProvider } from "./providers/bookingData";
 
 const App: React.FC = () => {
   return (
@@ -35,6 +38,11 @@ const Contents: React.FC = () => {
           icon: <PeopleIcon />,
           label: "Users",
           url: "/users",
+        },
+        {
+          icon: <CalendarIcon />,
+          label: "Bookings",
+          url: "/bookings",
         },
       ]
     : [
@@ -57,17 +65,23 @@ const Contents: React.FC = () => {
           <Menu items={menuItems} />
         </Left>
         <Right>
-          <Switch>
-            <Route path="/signup">
-              <SignupContainer />
-            </Route>
-            <Route path="/login">
-              <LoginContainer />
-            </Route>
-            <ProtectedRoute path="/users/:id" component={EditUserContainer} />
-            <ProtectedRoute path="/users" component={UsersContainer} />
-            <Route component={NotFound} />
-          </Switch>
+          <BookingDataProvider>
+            <Switch>
+              <Route path="/signup">
+                <SignupContainer />
+              </Route>
+              <Route path="/login">
+                <LoginContainer />
+              </Route>
+              <ProtectedRoute path="/users/:id" component={EditUserContainer} />
+              <ProtectedRoute path={["/users"]} component={UsersContainer} />
+              <ProtectedRoute
+                path={["/bookings"]}
+                component={BookingsContainer}
+              />
+              <Route component={NotFound} />
+            </Switch>
+          </BookingDataProvider>
         </Right>
       </Content>
     </Container>

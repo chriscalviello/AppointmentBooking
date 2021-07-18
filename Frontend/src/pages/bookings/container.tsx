@@ -99,6 +99,31 @@ const CalendarContainer: React.FC = ({}) => {
       });
   };
 
+  const onDeleteRequest = async (id: string) => {
+    setLoading(true);
+    setError("");
+
+    API.post(
+      "/booking/delete",
+      { id },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + currentUser?.token,
+        },
+      }
+    )
+      .then(() => {
+        fetchAppointments();
+      })
+      .catch((err) => {
+        setError(err.response.data.message);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
   useEffect(() => {
     fetchAppointments();
   }, [searchQuery]);
@@ -106,6 +131,7 @@ const CalendarContainer: React.FC = ({}) => {
   return (
     <Calendar
       onAddRequest={onAddRequest}
+      onDeleteRequest={onDeleteRequest}
       calendar={{
         cta: (date: Date) => {
           updateSearchQuery(date);

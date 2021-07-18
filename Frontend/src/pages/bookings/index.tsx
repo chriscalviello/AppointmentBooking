@@ -12,12 +12,14 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import AddIcon from "@material-ui/icons/Add";
+import DeleteIcon from "@material-ui/icons/Delete";
 
 interface Props {
   calendar: FiltersCtaProps;
   error: string;
   loading: boolean;
   onAddRequest: (start: Date, end: Date) => void;
+  onDeleteRequest: (id: string) => void;
   slots: AppointmentProps[];
 }
 
@@ -33,6 +35,7 @@ const Bookings: React.FC<Props> = ({
   error,
   loading,
   onAddRequest,
+  onDeleteRequest,
   slots,
 }) => {
   return (
@@ -56,18 +59,36 @@ const Bookings: React.FC<Props> = ({
             <TableBody>
               {slots.length ? (
                 slots.map((s, i) => {
-                  const addCta: ItemCtaProps = {
-                    icon: <AddIcon />,
-                    onClick: () => {
-                      if (confirm("Are you sure to book this slot?")) {
-                        onAddRequest(s.dateStart, s.dateEnd);
-                      }
-                    },
-                  };
+                  const ctas: ItemCtaProps[] = s.id
+                    ? [
+                        {
+                          icon: <DeleteIcon />,
+                          onClick: () => {
+                            if (
+                              confirm(
+                                "Are you sure to delete this appointment?"
+                              )
+                            ) {
+                              onDeleteRequest(s.id ? s.id : "");
+                            }
+                          },
+                        },
+                      ]
+                    : [
+                        {
+                          icon: <AddIcon />,
+                          onClick: () => {
+                            if (confirm("Are you sure to book this slot?")) {
+                              onAddRequest(s.dateStart, s.dateEnd);
+                            }
+                          },
+                        },
+                      ];
+
                   return (
                     <Appointment
                       key={i}
-                      ctas={s.id ? [] : [addCta]}
+                      ctas={ctas}
                       customer={s.customer}
                       start={s.dateStart.toLocaleTimeString()}
                       end={s.dateEnd.toLocaleTimeString()}

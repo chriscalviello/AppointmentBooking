@@ -27,14 +27,18 @@ export class ConcreteUserService implements UserService {
   };
   deleteUserAndLinkedAppointments = (customer: IUser) => {
     return new Promise<void>(async (resolve, reject) => {
-      const sess = await startSession();
-      sess.startTransaction();
-      (customer.appointments as IAppointment[]).map(
-        async (a) => await a.remove({ session: sess })
-      );
-      await customer.remove({ session: sess });
-      await sess.commitTransaction();
-      resolve();
+      try {
+        const sess = await startSession();
+        sess.startTransaction();
+        (customer.appointments as IAppointment[]).map(
+          async (a) => await a.remove({ session: sess })
+        );
+        await customer.remove({ session: sess });
+        await sess.commitTransaction();
+        resolve();
+      } catch (err) {
+        reject(err);
+      }
     });
   };
   edit = (email: string, name: string, id: string, role: Roles) => {
@@ -103,7 +107,7 @@ export class ConcreteUserService implements UserService {
 
       try {
         user = await User.findById(id, "-password").populate({
-          path: "Appointment",
+          path: "appointments",
         });
       } catch (err) {
         reject("Something went wrong, could not find user.");

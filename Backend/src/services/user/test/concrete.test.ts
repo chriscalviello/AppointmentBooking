@@ -1,5 +1,5 @@
 import { ConcreteUserService } from "../concrete";
-
+import Appointment, { IAppointment } from "../../../models/appointment";
 import User, { IUser } from "../../../models/user";
 import { Roles } from "../../../authorization";
 
@@ -30,6 +30,11 @@ describe("ConcreteUserService", () => {
     user.password = "password";
     user.role = Roles.user;
     await user.save();
+    await saveAppointment(
+      new Date(2020, 10, 1, 8, 0),
+      new Date(2020, 10, 1, 8, 30),
+      user
+    );
 
     admin = new User();
     admin.name = "admin";
@@ -118,3 +123,17 @@ describe("ConcreteUserService", () => {
     expect(data && data.password).toBeUndefined();
   });
 });
+
+const saveAppointment = async (
+  dateStart: Date,
+  dateEnd: Date,
+  customer: IUser
+) => {
+  const appointment = new Appointment();
+  appointment.dateStart = dateStart;
+  appointment.dateEnd = dateEnd;
+  appointment.customer = customer.id;
+  await appointment.save();
+  (customer.appointments as IAppointment[]).push(appointment);
+  await customer.save();
+};

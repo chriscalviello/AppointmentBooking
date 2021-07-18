@@ -48,12 +48,9 @@ class BookingController {
     const dateEnd = new Date(req.query.dateEnd as string);
 
     try {
-      const customerId =
-        req.user && req.user.role.includes("USER") ? req.user.id : undefined;
       const appointments = await this.bookingService.getByRange(
         dateStart,
-        dateEnd,
-        customerId
+        dateEnd
       );
       res.json({ appointments });
     } catch (err) {

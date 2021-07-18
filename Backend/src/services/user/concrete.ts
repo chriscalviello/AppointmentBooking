@@ -1,22 +1,39 @@
 import UserService from ".";
 import User, { IUser } from "../../models/user";
+import { IAppointment } from "../../models/appointment";
 import { Roles } from "../../authorization";
+
+import { startSession } from "mongoose";
 
 export class ConcreteUserService implements UserService {
   constructor() {}
 
   delete = (id: string) => {
     return new Promise<void>(async (resolve, reject) => {
+      let user;
       try {
-        const x = await User.deleteOne({ _id: id });
-        if (!x.deletedCount) {
-          reject("No users found.");
+        user = await this.getById(id);
+        if (!user) {
+          reject("Could not find user");
           return;
         }
+        await this.deleteUserAndLinkedAppointments(user);
       } catch (err) {
         reject("Something went wrong, could not delete user.");
         return;
       }
+      resolve();
+    });
+  };
+  deleteUserAndLinkedAppointments = (customer: IUser) => {
+    return new Promise<void>(async (resolve, reject) => {
+      const sess = await startSession();
+      sess.startTransaction();
+      (customer.appointments as IAppointment[]).map(
+        async (a) => await a.remove({ session: sess })
+      );
+      await customer.remove({ session: sess });
+      await sess.commitTransaction();
       resolve();
     });
   };
@@ -85,7 +102,9 @@ export class ConcreteUserService implements UserService {
       let user;
 
       try {
-        user = await User.findById(id, "-password");
+        user = await User.findById(id, "-password").populate({
+          path: "Appointment",
+        });
       } catch (err) {
         reject("Something went wrong, could not find user.");
         return;

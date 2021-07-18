@@ -51,14 +51,24 @@ describe("ConcreteUserService", () => {
     await con.disconnect();
   });
 
-  it("when delete should remove user", async () => {
-    await sut.delete(userToBeDeleted.id);
-    const users = await sut.getAll();
-    expect(users.length).toEqual(2);
-  });
+  describe("when delete", () => {
+    const mockedDeleteFn = jest
+      .spyOn(sut, "deleteUserAndLinkedAppointments")
+      .mockImplementation(() => {
+        return new Promise<void>((resolve) => {
+          resolve();
+        });
+      });
 
-  it("when delete a not existing user should reject", async () => {
-    await expect(sut.delete("123456789012")).rejects.toBeDefined();
+    it("when delete should call deleteUserAndLinkedAppointments", async () => {
+      await sut.delete(userToBeDeleted.id);
+
+      expect(mockedDeleteFn).toHaveBeenCalled();
+    });
+
+    it("when delete a not existing user should reject", async () => {
+      await expect(sut.delete("123456789012")).rejects.toBeDefined();
+    });
   });
 
   it("when edit should update data", async () => {
@@ -81,7 +91,7 @@ describe("ConcreteUserService", () => {
 
   it("when getAll should return data", async () => {
     const users = await sut.getAll();
-    expect(users.length).toEqual(2);
+    expect(users.length).toEqual(3);
   });
 
   it("when getByEmail should return data", async () => {

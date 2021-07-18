@@ -153,16 +153,20 @@ export class ConcreteBookingService implements BookingService {
       try {
         appointments = customerId
           ? await Appointment.find()
+              .populate({
+                path: "customer",
+              })
               .and([{ customer: customerId }])
               .or(this._getRangeCondition(dateStart, dateEnd, true))
-          : await Appointment.find().or(
-              this._getRangeCondition(dateStart, dateEnd, true)
-            );
+          : await Appointment.find()
+              .populate({
+                path: "customer",
+              })
+              .or(this._getRangeCondition(dateStart, dateEnd, true));
       } catch (err) {
         reject("Something went wrong, could not retrieve appointments.");
         return;
       }
-
       resolve(appointments);
     });
   };

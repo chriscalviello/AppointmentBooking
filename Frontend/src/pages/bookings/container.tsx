@@ -28,7 +28,6 @@ const CalendarContainer: React.FC = ({}) => {
     )
       .then((res) => {
         const responseData = res.data;
-
         const appointments: AppointmentProps[] = responseData.appointments.map(
           (a: any) => {
             const appointment: AppointmentProps = {
@@ -67,8 +66,37 @@ const CalendarContainer: React.FC = ({}) => {
       });
   };
 
-  const onCta = (date: Date) => {
-    updateSearchQuery(date);
+  const onAddRequest = (start: Date, end: Date) => {
+    setLoading(true);
+    setError("");
+    API.post(
+      "/booking/create",
+      {
+        dateStart: start.toUTCString(),
+        dateEnd: end.toUTCString(),
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + currentUser?.token,
+        },
+      }
+    )
+      .then((res) => {
+        const responseData = res.data;
+
+        if (!responseData.newAppointment._id) {
+          throw new Error("Something went wrong");
+        }
+
+        fetchAppointments();
+      })
+      .catch((err) => {
+        setError(err.response.data.message);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   useEffect(() => {
@@ -77,13 +105,16 @@ const CalendarContainer: React.FC = ({}) => {
 
   return (
     <Calendar
-      slots={slots}
+      onAddRequest={onAddRequest}
       calendar={{
-        cta: onCta,
+        cta: (date: Date) => {
+          updateSearchQuery(date);
+        },
         date: searchQuery.start,
       }}
       error={error}
       loading={loading}
+      slots={slots}
     />
   );
 };

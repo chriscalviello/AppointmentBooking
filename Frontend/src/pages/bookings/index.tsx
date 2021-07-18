@@ -1,5 +1,4 @@
 import React from "react";
-import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import Loading from "../../components/loading";
 import Filters, { ContentProps as FiltersCtaProps } from "./filters";
@@ -15,10 +14,11 @@ import TableRow from "@material-ui/core/TableRow";
 import AddIcon from "@material-ui/icons/Add";
 
 interface Props {
-  slots: AppointmentProps[];
   calendar: FiltersCtaProps;
   error: string;
   loading: boolean;
+  onAddRequest: (start: Date, end: Date) => void;
+  slots: AppointmentProps[];
 }
 
 export interface AppointmentProps {
@@ -28,14 +28,13 @@ export interface AppointmentProps {
   dateEnd: Date;
 }
 
-const Bookings: React.FC<Props> = ({ slots, calendar, error, loading }) => {
-  const history = useHistory();
-
-  const addCta: ItemCtaProps = {
-    icon: <AddIcon />,
-    onClick: () => console.log("CIAO"),
-  };
-
+const Bookings: React.FC<Props> = ({
+  calendar,
+  error,
+  loading,
+  onAddRequest,
+  slots,
+}) => {
   return (
     <Container>
       <StyledFilters {...calendar} />
@@ -45,7 +44,7 @@ const Bookings: React.FC<Props> = ({ slots, calendar, error, loading }) => {
         <h1>{error}</h1>
       ) : (
         <TableContainer component={Paper}>
-          <Table aria-label="simple table">
+          <Table stickyHeader aria-label="simple table">
             <TableHead>
               <TableRow>
                 <TableCell>Customer</TableCell>
@@ -56,14 +55,22 @@ const Bookings: React.FC<Props> = ({ slots, calendar, error, loading }) => {
             </TableHead>
             <TableBody>
               {slots.length ? (
-                slots.map((a, i) => {
+                slots.map((s, i) => {
+                  const addCta: ItemCtaProps = {
+                    icon: <AddIcon />,
+                    onClick: () => {
+                      if (confirm("Are you sure to book this slot?")) {
+                        onAddRequest(s.dateStart, s.dateEnd);
+                      }
+                    },
+                  };
                   return (
                     <Appointment
                       key={i}
-                      ctas={a.id ? [] : [addCta]}
-                      customer={a.customer}
-                      start={a.dateStart.toLocaleTimeString()}
-                      end={a.dateEnd.toLocaleTimeString()}
+                      ctas={s.id ? [] : [addCta]}
+                      customer={s.customer}
+                      start={s.dateStart.toLocaleTimeString()}
+                      end={s.dateEnd.toLocaleTimeString()}
                     />
                   );
                 })

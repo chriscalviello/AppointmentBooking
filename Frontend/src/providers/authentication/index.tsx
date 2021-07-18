@@ -42,7 +42,7 @@ export const AuthenticationProvider = ({ children }: Props) => {
         };
         setCurrentUser(user);
         localStorage.setItem("currentUser", JSON.stringify(user));
-        history.replace("/users");
+        history.replace("/bookings");
       })
       .catch((err) => {
         setError(err.response.data.message);
@@ -81,7 +81,7 @@ export const AuthenticationProvider = ({ children }: Props) => {
         };
         setCurrentUser(user);
         localStorage.setItem("currentUser", JSON.stringify(user));
-        history.replace("/comments");
+        history.replace("/bookings");
       })
       .catch((err) => {
         setError(err.response.data.message);

@@ -35,8 +35,6 @@ const Filters: React.FC<ContentProps> = ({ cta, date, ...rest }) => {
   );
 };
 
-const Container = styled.div`
-  display: flex;
-`;
+const Container = styled.div``;
 
 export default Filters;

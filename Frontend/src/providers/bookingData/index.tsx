@@ -15,6 +15,7 @@ const fixDateStart = (date: Date) => {
   let start = new Date(date);
   start.setHours(0);
   start.setMinutes(0);
+  start.setSeconds(0);
   return start;
 };
 
@@ -22,20 +23,45 @@ const fixDateEnd = (date: Date) => {
   let end = new Date(date);
   end.setHours(23);
   end.setMinutes(59);
+  end.setSeconds(0);
   return end;
 };
 
+const getSlots = (start: Date, end: Date) => {
+  let d = new Date(start);
+  const slots: Slot[] = [];
+  while (d.getTime() < end.getTime()) {
+    const end = new Date(d);
+    end.setMinutes(d.getMinutes() + 30);
+    slots.push({
+      start: d,
+      end,
+    });
+    d = new Date(end);
+  }
+  return slots;
+};
+
+const getSearchQuery = (date: Date) => {
+  const start = fixDateStart(date);
+  const end = fixDateEnd(date);
+
+  const searchQuery: SearchQuery = {
+    start,
+    end,
+    slots: getSlots(start, end),
+  };
+
+  return searchQuery;
+};
+
 export const BookingDataProvider = ({ children }: Props) => {
-  const [searchQuery, setSearchQuery] = useState<SearchQuery>({
-    start: fixDateStart(new Date()),
-    end: fixDateEnd(new Date()),
-  });
+  const [searchQuery, setSearchQuery] = useState<SearchQuery>(
+    getSearchQuery(new Date())
+  );
 
   const updateSearchQuery = (date: Date) => {
-    setSearchQuery({
-      start: fixDateStart(date),
-      end: fixDateEnd(date),
-    });
+    setSearchQuery(getSearchQuery(date));
   };
 
   const [loading, setLoading] = useState(false);
@@ -66,6 +92,12 @@ export const useBookingData = (): Context => {
 };
 
 export type SearchQuery = {
+  end: Date;
+  slots: Slot[];
+  start: Date;
+};
+
+interface Slot {
   start: Date;
   end: Date;
-};
+}

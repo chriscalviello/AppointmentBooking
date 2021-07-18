@@ -9,7 +9,7 @@ const CalendarContainer: React.FC = ({}) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { currentUser } = useAuthentication();
-  const [appointments, setAppointments] = useState<AppointmentProps[]>([]);
+  const [slots, setSlots] = useState<AppointmentProps[]>([]);
 
   const fetchAppointments = async () => {
     setLoading(true);
@@ -28,16 +28,36 @@ const CalendarContainer: React.FC = ({}) => {
     )
       .then((res) => {
         const responseData = res.data;
-        setAppointments(
-          responseData.appointments.map((a: any) => {
+
+        const appointments: AppointmentProps[] = responseData.appointments.map(
+          (a: any) => {
             const appointment: AppointmentProps = {
               id: a._id,
+              customer: a.customer.email,
               dateStart: new Date(a.dateStart),
               dateEnd: new Date(a.dateEnd),
             };
             return appointment;
-          })
+          }
         );
+
+        const data: AppointmentProps[] = searchQuery.slots.map((s) => {
+          const appointment = appointments.filter(
+            (a) =>
+              a.dateStart.getTime() === s.start.getTime() &&
+              a.dateEnd.getTime() === s.end.getTime()
+          );
+
+          return appointment.length
+            ? appointment[0]
+            : {
+                customer: "Free Slot",
+                dateStart: s.start,
+                dateEnd: s.end,
+              };
+        });
+
+        setSlots(data);
       })
       .catch((err) => {
         setError(err.response.data.message);
@@ -57,7 +77,7 @@ const CalendarContainer: React.FC = ({}) => {
 
   return (
     <Calendar
-      appointments={appointments}
+      slots={slots}
       calendar={{
         cta: onCta,
         date: searchQuery.start,

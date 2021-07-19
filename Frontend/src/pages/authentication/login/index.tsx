@@ -52,8 +52,8 @@ const Login: React.FC<Props> = ({ error, loading, onActionRequest, title }) => {
         <>
           {error && <h1>{error}</h1>}
           <p>Initial users</p>
-          <p>admin@admin.admin : admin</p>
-          <p>user@user.user : user</p>
+          <p>admin@admin.admin : 123456</p>
+          <p>user@user.user : 123456</p>
           <Form
             ctas={[
               {

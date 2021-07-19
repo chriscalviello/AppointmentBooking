@@ -10,10 +10,10 @@ import UserRoutes from "./routes/user";
 
 import HttpError from "./models/httpError";
 
-import AuthenticationService from "./services/authentication";
-import BookingService from "./services/booking";
+import { IAuthenticationService } from "./services/authentication";
+import { IBookingService } from "./services/booking";
 import LogService from "./services/log";
-import UserService from "./services/user";
+import { IUserService } from "./services/user";
 
 import SwaggerConfig from "./config/swagger";
 
@@ -22,15 +22,15 @@ import DatabaseConfig from "./config/database";
 class App {
   public app: express.Application;
   public port: number;
-  private authenticationService: AuthenticationService;
-  private bookingService: BookingService;
-  private userService: UserService;
+  private authenticationService: IAuthenticationService;
+  private bookingService: IBookingService;
+  private userService: IUserService;
 
   constructor(
     port: number,
-    authenticationService: AuthenticationService,
-    bookingService: BookingService,
-    userService: UserService
+    authenticationService: IAuthenticationService,
+    bookingService: IBookingService,
+    userService: IUserService
   ) {
     this.app = express();
 

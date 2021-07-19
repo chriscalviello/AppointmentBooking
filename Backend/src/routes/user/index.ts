@@ -2,14 +2,14 @@ import express, { Router } from "express";
 import { check } from "express-validator";
 
 import UserController from "../../controllers/user";
-import UserService from "../../services/user";
+import { IUserService } from "../../services/user";
 import { AllowRouteTo, Roles } from "../../authorization";
 
 import Validation from "../validation";
 
 class UserRoutes {
   private router: Router;
-  constructor(userService: UserService) {
+  constructor(userService: IUserService) {
     this.router = express.Router();
 
     const controller = new UserController(userService);

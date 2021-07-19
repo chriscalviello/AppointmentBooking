@@ -1,11 +1,11 @@
-import UserService from ".";
+import { IUserService } from ".";
 import User, { IUser } from "../../models/user";
 import { IAppointment } from "../../models/appointment";
 import { Roles } from "../../authorization";
 
 import { startSession } from "mongoose";
 
-export class ConcreteUserService implements UserService {
+export class UserService implements IUserService {
   constructor() {}
 
   delete = (id: string) => {

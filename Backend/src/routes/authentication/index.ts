@@ -2,13 +2,13 @@ import express, { Router } from "express";
 import { check } from "express-validator";
 
 import AuthenticationController from "../../controllers/authentication";
-import AuthenticationService from "../../services/authentication";
+import { IAuthenticationService } from "../../services/authentication";
 
 import Validation from "../validation";
 
 export default class AuthenticationRoutes {
   private router: Router;
-  constructor(authenticationService: AuthenticationService) {
+  constructor(authenticationService: IAuthenticationService) {
     this.router = express.Router();
 
     const controller = new AuthenticationController(authenticationService);

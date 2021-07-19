@@ -1,13 +1,13 @@
-import BookingService from ".";
-import UserService from "../user";
+import { IBookingService } from ".";
+import { IUserService } from "../user";
 import Appointment, { IAppointment } from "../../models/appointment";
 import { IUser } from "../../models/user";
 
 import { startSession } from "mongoose";
 
-export class ConcreteBookingService implements BookingService {
-  private userService: UserService;
-  constructor(userService: UserService) {
+export class BookingService implements IBookingService {
+  private userService: IUserService;
+  constructor(userService: IUserService) {
     this.userService = userService;
   }
 

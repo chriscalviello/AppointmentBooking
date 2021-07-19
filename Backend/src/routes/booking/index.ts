@@ -2,14 +2,14 @@ import express, { Router } from "express";
 import { check } from "express-validator";
 
 import BookingController from "../../controllers/booking";
-import BookingService from "../../services/booking";
+import { IBookingService } from "../../services/booking";
 import { AllowRouteTo, Roles } from "../../authorization";
 
 import Validation from "../validation";
 
 class BookingRoutes {
   private router: Router;
-  constructor(bookingService: BookingService) {
+  constructor(bookingService: IBookingService) {
     this.router = express.Router();
 
     const controller = new BookingController(bookingService);

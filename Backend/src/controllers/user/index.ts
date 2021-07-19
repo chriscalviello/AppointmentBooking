@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import HttpError from "../../models/httpError";
-import UserService from "../../services/user";
+import { IUserService } from "../../services/user";
 import { Roles } from "../../authorization";
 
 class UserController {
-  private userService: UserService;
+  private userService: IUserService;
 
-  constructor(userService: UserService) {
+  constructor(userService: IUserService) {
     this.userService = userService;
   }
 

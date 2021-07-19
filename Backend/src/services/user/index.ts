@@ -1,7 +1,7 @@
 import { IUser } from "../../models/user";
 import { Roles } from "../../authorization";
 
-interface IUserService {
+export interface IUserService {
   delete: (id: string) => Promise<void>;
   edit: (
     email: string,
@@ -13,5 +13,3 @@ interface IUserService {
   getByEmail: (email: string) => Promise<IUser | undefined>;
   getById: (userId: string) => Promise<IUser | undefined>;
 }
-
-export default IUserService;

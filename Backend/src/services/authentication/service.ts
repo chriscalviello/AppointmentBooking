@@ -1,13 +1,13 @@
-import AuthenticationService from ".";
-import UserService from "../user";
+import { IAuthenticationService } from ".";
+import { IUserService } from "../user";
 import User from "../../models/user";
 import { LoggedUser } from "../../models/loggedUser";
 import { Roles } from "../../authorization";
 
 import jwt from "jsonwebtoken";
 
-export class ConcreteAuthenticationService implements AuthenticationService {
-  private userService: UserService;
+export class AuthenticationService implements IAuthenticationService {
+  private userService: IUserService;
 
   private accessTokenSecret: string;
   private refreshTokenSecret: string;
@@ -18,7 +18,7 @@ export class ConcreteAuthenticationService implements AuthenticationService {
     accessTokenSecret: string,
     refreshTokenSecret: string,
     tokenDurationInMinutes: number,
-    userService: UserService
+    userService: IUserService
   ) {
     this.userService = userService;
 

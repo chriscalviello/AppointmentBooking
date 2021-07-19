@@ -1,6 +1,6 @@
 import { IAppointment } from "../../models/appointment";
 
-interface IBookingService {
+export interface IBookingService {
   checkAvailability: (
     dateStart: Date,
     dateEnd: Date,
@@ -26,5 +26,3 @@ interface IBookingService {
     note: string
   ) => Promise<IAppointment>;
 }
-
-export default IBookingService;

@@ -1,6 +1,6 @@
 import { LoggedUser } from "../../models/loggedUser";
 
-interface IAuthenticationService {
+export interface IAuthenticationService {
   getLoggedUserByToken: (token: string) => LoggedUser;
   login: (email: string, password: string) => Promise<LoggedUser>;
   logout: (token: string) => void;
@@ -11,5 +11,3 @@ interface IAuthenticationService {
     name: string
   ) => Promise<LoggedUser>;
 }
-
-export default IAuthenticationService;

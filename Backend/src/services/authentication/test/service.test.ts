@@ -1,6 +1,6 @@
-import { ConcreteAuthenticationService } from "../concrete";
-import { ConcreteUserService } from "../../user/concrete";
-jest.mock("../../user/concrete");
+import { AuthenticationService } from "../service";
+import { UserService } from "../../user/service";
+jest.mock("../../user/service");
 
 import User, { IUser } from "../../../models/user";
 import { Roles } from "../../../authorization";
@@ -8,16 +8,16 @@ import { Roles } from "../../../authorization";
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 
-describe("ConcreteAuthenticationService", () => {
+describe("AuthenticationService", () => {
   let mongoServer: MongoMemoryServer;
   let con: typeof mongoose;
   let user: IUser;
-  const userService = new ConcreteUserService();
+  const userService = new UserService();
 
   const accessTokenSecret = "accessTokenSecret";
   const refreshTokenSecret = "refreshTokenSecret";
 
-  const sut = new ConcreteAuthenticationService(
+  const sut = new AuthenticationService(
     accessTokenSecret,
     refreshTokenSecret,
     60,
@@ -40,7 +40,7 @@ describe("ConcreteAuthenticationService", () => {
     user.role = Roles.user;
     await user.save();
 
-    ConcreteUserService.prototype.getByEmail = jest
+    UserService.prototype.getByEmail = jest
       .fn()
       .mockImplementation((email: string) => {
         return new Promise<IUser | undefined>((resolve) => {

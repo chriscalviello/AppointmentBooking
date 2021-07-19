@@ -1,4 +1,4 @@
-import { ConcreteUserService } from "../concrete";
+import { UserService } from "../service";
 import Appointment, { IAppointment } from "../../../models/appointment";
 import User, { IUser } from "../../../models/user";
 import { Roles } from "../../../authorization";
@@ -6,14 +6,14 @@ import { Roles } from "../../../authorization";
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 
-describe("ConcreteUserService", () => {
+describe("UserService", () => {
   let mongoServer: MongoMemoryServer;
   let con: typeof mongoose;
   let user: IUser;
   let admin: IUser;
   let userToBeDeleted: IUser;
 
-  const sut = new ConcreteUserService();
+  const sut = new UserService();
 
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();

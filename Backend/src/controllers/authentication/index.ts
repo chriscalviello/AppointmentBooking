@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import HttpError from "../../models/httpError";
-import AuthenticationService from "../../services/authentication";
+import { IAuthenticationService } from "../../services/authentication";
 
 export default class AuthenticationController {
-  private authenticationService: AuthenticationService;
+  private authenticationService: IAuthenticationService;
 
-  constructor(authenticationService: AuthenticationService) {
+  constructor(authenticationService: IAuthenticationService) {
     this.authenticationService = authenticationService;
   }
 

@@ -1,19 +1,19 @@
-import { ConcreteBookingService } from "../concrete";
+import { BookingService } from "../service";
 import Appointment, { IAppointment } from "../../../models/appointment";
 import User, { IUser } from "../../../models/user";
 import { Roles } from "../../../authorization";
-import { ConcreteUserService } from "../../user/concrete";
-jest.mock("../../user/concrete");
+import { UserService } from "../../user/service";
+jest.mock("../../user/service");
 
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 
-describe("ConcreteBookingService", () => {
+describe("BookingService", () => {
   let mongoServer: MongoMemoryServer;
   let con: typeof mongoose;
   let customer: IUser;
 
-  const sut = new ConcreteBookingService(new ConcreteUserService());
+  const sut = new BookingService(new UserService());
 
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
@@ -41,7 +41,7 @@ describe("ConcreteBookingService", () => {
       customer
     );
 
-    ConcreteUserService.prototype.getById = jest
+    UserService.prototype.getById = jest
       .fn()
       .mockImplementation((id: string) => {
         return new Promise<IUser | undefined>((resolve) => {

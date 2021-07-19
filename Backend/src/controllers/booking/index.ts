@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import HttpError from "../../models/httpError";
-import BookingService from "../../services/booking";
+import { IBookingService } from "../../services/booking";
 
 class BookingController {
-  private bookingService: BookingService;
+  private bookingService: IBookingService;
 
-  constructor(bookingService: BookingService) {
+  constructor(bookingService: IBookingService) {
     this.bookingService = bookingService;
   }
 

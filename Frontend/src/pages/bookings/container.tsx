@@ -19,9 +19,9 @@ const CalendarContainer: React.FC = ({}) => {
     setError("");
     API.get(
       "/booking/getByRange?dateStart=" +
-        searchQuery.start.toUTCString() +
+        searchQuery.start.toISOString() +
         "&dateEnd=" +
-        searchQuery.end.toUTCString(),
+        searchQuery.end.toISOString(),
       {
         headers: {
           "Content-Type": "application/json",
@@ -75,8 +75,8 @@ const CalendarContainer: React.FC = ({}) => {
     API.post(
       "/booking/create",
       {
-        dateStart: start.toUTCString(),
-        dateEnd: end.toUTCString(),
+        dateStart: start.toISOString(),
+        dateEnd: end.toISOString(),
       },
       {
         headers: {

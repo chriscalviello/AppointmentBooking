@@ -37,6 +37,7 @@ export const AuthenticationProvider = ({ children }: Props) => {
 
         const user: CurrentUser = {
           id: responseData.user.id,
+          email: responseData.user.email,
           token: responseData.user.accessToken,
           refreshToken: responseData.user.refreshToken,
         };
@@ -75,6 +76,7 @@ export const AuthenticationProvider = ({ children }: Props) => {
         const responseData = res.data;
         const user: CurrentUser = {
           id: responseData.user.id,
+          email: responseData.user.email,
           token: responseData.user.accessToken,
           refreshToken: responseData.user.refreshToken,
         };
@@ -172,6 +174,7 @@ export const useAuthentication = (): Context => {
 
 type CurrentUser = {
   id: string;
+  email: string;
   token: string;
   refreshToken: string;
 };

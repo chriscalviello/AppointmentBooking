@@ -11,7 +11,12 @@ import LoginContainer from "./pages/authentication/login/container";
 import SignupContainer from "./pages/authentication/signup/container";
 import NotFound from "./pages/notFound";
 import ProtectedRoute from "./protectedRoute";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import {
+  Redirect,
+  BrowserRouter as Router,
+  Route,
+  Switch,
+} from "react-router-dom";
 import PersonAddIcon from "@material-ui/icons/PersonAdd";
 import LockOpenIcon from "@material-ui/icons/LockOpen";
 import PeopleIcon from "@material-ui/icons/People";
@@ -79,6 +84,9 @@ const Contents: React.FC = () => {
                 path={["/bookings"]}
                 component={BookingsContainer}
               />
+              <Route exact path="/">
+                <Redirect to={"/bookings"} exact />
+              </Route>
               <Route component={NotFound} />
             </Switch>
           </BookingDataProvider>

@@ -16,7 +16,20 @@ class BookingRoutes {
 
     this.router.post(
       "/create",
-      [check("dateStart").not().isEmpty(), check("dateEnd").not().isEmpty()],
+      [
+        check("dateStart").isISO8601(),
+        check("dateEnd").isISO8601(),
+        check("dateEnd").custom((value, { req }) => {
+          if (
+            req.body &&
+            new Date(value).getTime() < new Date(req.body.dateStart).getTime()
+          ) {
+            return false;
+          }
+
+          return true;
+        }),
+      ],
       AllowRouteTo([Roles.user]),
       Validation.validate,
       controller.create
@@ -30,7 +43,20 @@ class BookingRoutes {
     );
     this.router.get(
       "/getByRange",
-      [check("dateStart").not().isEmpty(), check("dateEnd").not().isEmpty()],
+      [
+        check("dateStart").isISO8601(),
+        check("dateEnd").isISO8601(),
+        check("dateEnd").custom((value, { req }) => {
+          if (
+            req.query &&
+            new Date(value).getTime() < new Date(req.query.dateStart).getTime()
+          ) {
+            return false;
+          }
+
+          return true;
+        }),
+      ],
       AllowRouteTo([Roles.admin, Roles.user]),
       Validation.validate,
       controller.getByRange

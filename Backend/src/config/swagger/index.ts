@@ -33,7 +33,7 @@ const options: swaggerJsdoc.OAS3Options = {
         properties: {
           email: {
             type: "string",
-            example: "chris@gmail.com",
+            example: "admin@admin.admin",
             format: "email",
           },
           password: {
@@ -65,7 +65,7 @@ const options: swaggerJsdoc.OAS3Options = {
           dateEnd: {
             type: "string",
             format: "date-time",
-            description: "UTC ISO",
+            description: "UTC ISO, must be greater than dateStart",
           },
           customer: {
             oneof: [
@@ -99,7 +99,7 @@ const options: swaggerJsdoc.OAS3Options = {
           dateEnd: {
             type: "string",
             format: "date-time",
-            description: "UTC ISO",
+            description: "UTC ISO, must be greater than dateStart",
           },
         },
         required: ["dateStart", "dateEnd"],
@@ -109,7 +109,7 @@ const options: swaggerJsdoc.OAS3Options = {
         properties: {
           email: {
             type: "string",
-            example: "chris@gmail.com",
+            example: "admin@admin.admin",
             format: "email",
           },
           password: {

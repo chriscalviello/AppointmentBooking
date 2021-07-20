@@ -48,7 +48,11 @@ export class AuthenticationService implements IAuthenticationService {
       }
 
       resolve(
-        this.createTokensAndGetLoggedUser(existingUser.id, existingUser.role)
+        this.createTokensAndGetLoggedUser(
+          existingUser.email,
+          existingUser.id,
+          existingUser.role
+        )
       );
     });
   };
@@ -98,19 +102,29 @@ export class AuthenticationService implements IAuthenticationService {
       }
 
       resolve(
-        this.createTokensAndGetLoggedUser(createdUser.id, createdUser.role)
+        this.createTokensAndGetLoggedUser(
+          createdUser.email,
+          createdUser.id,
+          createdUser.role
+        )
       );
     });
   };
 
-  private createTokensAndGetLoggedUser = (userId: string, role: Roles) => {
+  private createTokensAndGetLoggedUser = (
+    email: string,
+    userId: string,
+    role: Roles
+  ) => {
     const accessToken = this.getJwtToken(
+      email,
       userId,
       role,
       this.accessTokenSecret,
       this.tokenDurationInMinutes + "m"
     );
     const refreshToken = this.getJwtToken(
+      email,
       userId,
       role,
       this.refreshTokenSecret
@@ -118,17 +132,18 @@ export class AuthenticationService implements IAuthenticationService {
 
     this.refreshTokens[userId] = refreshToken;
 
-    return new LoggedUser(userId, role, accessToken, refreshToken);
+    return new LoggedUser(userId, email, role, accessToken, refreshToken);
   };
 
   private getJwtToken = (
+    email: string,
     userId: string,
     role: Roles,
     tokenSecret: string,
     expiresIn?: string
   ) =>
     jwt.sign(
-      { ...new LoggedUser(userId, role) },
+      { ...new LoggedUser(userId, email, role) },
       tokenSecret,
       expiresIn ? { expiresIn } : undefined
     );

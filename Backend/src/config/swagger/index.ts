@@ -134,6 +134,9 @@ const options: swaggerJsdoc.OAS3Options = {
           id: {
             type: "string",
           },
+          email: {
+            type: "string",
+          },
           accessToken: {
             type: "string",
           },

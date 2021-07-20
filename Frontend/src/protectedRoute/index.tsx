@@ -1,7 +1,7 @@
 import React from "react";
-import { useAuthentication } from "../providers/authentication";
-
 import { Route, Redirect } from "react-router-dom";
+
+import { useAuthentication } from "../providers/authentication";
 
 const ProtectedRoute = ({ ...rest }) => {
   const { currentUser } = useAuthentication();

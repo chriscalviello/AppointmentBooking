@@ -1,7 +1,10 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
+
+import Loading from "../../components/loading";
 import Item, { CtaProps as ItemCtaProps } from "./item";
+
 import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
 import Table from "@material-ui/core/Table";
@@ -11,7 +14,6 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
-import Loading from "../../components/loading";
 
 interface Props {
   users: UserProps[];

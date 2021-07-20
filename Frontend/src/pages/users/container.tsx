@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useAuthentication } from "../../providers/authentication";
-import Home, { UserProps } from ".";
+
 import API from "../../api";
+
+import { useAuthentication } from "../../providers/authentication";
+
+import Home, { UserProps } from ".";
 
 const UsersContainer: React.FC = ({}) => {
   const [error, setError] = useState("");

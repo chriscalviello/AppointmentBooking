@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 
 import Form from "../../../components/form";
-import Roles, { Props as RolesProps } from "../roles";
 import Loading from "../../../components/loading";
+
+import Roles from "../roles";
 
 interface Props {
   user: User;

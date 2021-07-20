@@ -1,9 +1,11 @@
-import React, { MouseEventHandler } from "react";
+import React from "react";
 import styled from "styled-components";
+
 import IconButton from "@material-ui/core/IconButton";
 import MeetingRoomIcon from "@material-ui/icons/MeetingRoom";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
+
 import { useAuthentication } from "../../providers/authentication";
 
 interface Props {

@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useAuthentication } from "../../providers/authentication";
-import Calendar, { AppointmentProps } from ".";
+
 import API from "../../api";
+
+import { useAuthentication } from "../../providers/authentication";
 import { useBookingData } from "../../providers/bookingData";
+
+import Calendar, { AppointmentProps } from ".";
 
 const CalendarContainer: React.FC = ({}) => {
   const { searchQuery, updateSearchQuery } = useBookingData();

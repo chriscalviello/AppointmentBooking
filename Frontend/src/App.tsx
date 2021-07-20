@@ -1,29 +1,33 @@
 import React from "react";
 import styled from "styled-components";
 import {
-  AuthenticationProvider,
-  useAuthentication,
-} from "./providers/authentication";
+  Redirect,
+  BrowserRouter as Router,
+  Route,
+  Switch,
+} from "react-router-dom";
+
+import Topbar from "./components/topbar";
+
+import Menu, { ItemProps as MenuItemProps } from "./pages/menu";
 import BookingsContainer from "./pages/bookings/container";
 import UsersContainer from "./pages/users/container";
 import EditUserContainer from "./pages/users/edit/container";
 import LoginContainer from "./pages/authentication/login/container";
 import SignupContainer from "./pages/authentication/signup/container";
 import NotFound from "./pages/notFound";
-import ProtectedRoute from "./protectedRoute";
+
 import {
-  Redirect,
-  BrowserRouter as Router,
-  Route,
-  Switch,
-} from "react-router-dom";
+  AuthenticationProvider,
+  useAuthentication,
+} from "./providers/authentication";
+import { BookingDataProvider } from "./providers/bookingData";
+import ProtectedRoute from "./protectedRoute";
+
 import PersonAddIcon from "@material-ui/icons/PersonAdd";
 import LockOpenIcon from "@material-ui/icons/LockOpen";
 import PeopleIcon from "@material-ui/icons/People";
 import CalendarIcon from "@material-ui/icons/CalendarToday";
-import Menu, { ItemProps as MenuItemProps } from "./pages/menu";
-import Topbar from "./components/topbar";
-import { BookingDataProvider } from "./providers/bookingData";
 
 const App: React.FC = () => {
   return (

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
-import { useAuthentication } from "../../../providers/authentication";
-import { useParams } from "react-router-dom";
-import Edit, { User } from ".";
-import API from "../../../api";
 import axios from "axios";
+import { useHistory, useParams } from "react-router-dom";
+
+import API from "../../../api";
+
+import { useAuthentication } from "../../../providers/authentication";
+
+import Edit, { User } from ".";
 
 interface ParamTypes {
   id: string;

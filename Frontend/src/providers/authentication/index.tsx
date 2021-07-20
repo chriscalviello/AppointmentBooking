@@ -73,7 +73,6 @@ export const AuthenticationProvider = ({ children }: Props) => {
     )
       .then((res) => {
         const responseData = res.data;
-
         const user: CurrentUser = {
           id: responseData.user.id,
           token: responseData.user.accessToken,

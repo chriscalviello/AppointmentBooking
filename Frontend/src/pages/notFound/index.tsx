@@ -1,6 +1,7 @@
 import React from "react";
-import ErrorIcon from "@material-ui/icons/Error";
 import styled from "styled-components";
+
+import ErrorIcon from "@material-ui/icons/Error";
 
 const NotFound: React.FC = () => {
   return (

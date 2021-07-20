@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+
 import Loading from "../../components/loading";
 import Filters, { ContentProps as FiltersCtaProps } from "./filters";
 import Appointment, { CtaProps as ItemCtaProps } from "./appointment";
